@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}TA Scheduler{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Optional custom styles -->
+    <style>
+        body {
+            background-color: #353129;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .content-wrapper {
+            padding-top: 20px;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark" style="
+    background: linear-gradient(180deg, #dc8b3e 0%, #bf6d27 100%);
+    border-bottom: 4px solid #9a5418;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 18px rgba(0, 0, 0, 0.3);
+">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+
+        <!-- LEFT: APP NAME -->
+        <a class="navbar-brand" href="{% url 'root_redirect' %}" style="
+            color: #fffaf2;
+            font-weight: 800;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 0 rgba(90, 45, 10, 0.3);
+        ">
+            Scheduler<span style="color: #3e6b33;">.</span>
+        </a>
+
+        <!-- RIGHT: LOGOUT ONLY -->
+        {% if user %}
+            <a class="neon-logout-btn" href="/logout/">Logout</a>
+        {% endif %}
+
+        <!-- Logout Button Styles -->
+        <style>
+            .neon-logout-btn {
+                padding: 8px 20px;
+                border-radius: 12px;
+                color: #fffaf2 !important;
+                font-weight: 600;
+                text-decoration: none;
+                transition: 0.25s ease-in-out;
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.45);
+                box-shadow: 0 2px 0 rgba(90, 45, 10, 0.25);
+            }
+
+            .neon-logout-btn:hover {
+                color: #b0621f !important;
+                background: #fffaf2;
+                border-color: #fffaf2;
+                box-shadow: 0 4px 10px rgba(90, 45, 10, 0.3);
+                transform: translateY(-2px);
+            }
+        </style>
+
+    </div>
+</nav>
+
+<!-- MAIN PAGE CONTENT -->
+<div class="container content-wrapper">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

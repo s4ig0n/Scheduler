@@ -1,0 +1,362 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Assign TA - TA Scheduler{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+body {
+    background:
+        radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+        linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh;
+    color: #f1ece3 !important;
+}
+
+h2 {
+    color: #eba35c;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #b9b2a6;
+}
+
+h4 {
+    color: #a3c98f;
+}
+
+/* Form card = glass; cards that hold a table = solid */
+.neon-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+    border-radius: 18px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.neon-card:has(table) {
+    background: #1e2330;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+label {
+    font-weight: 600;
+    color: #f1ece3;
+}
+
+.form-control {
+    color-scheme: dark;
+    background: #232836;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #f1ece3 !important;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.form-control:focus {
+    background: #2a3040;
+    border-color: #eba35c;
+    box-shadow: 0 0 0 3px rgba(235, 163, 92, 0.3);
+}
+
+.form-control::placeholder {
+    color: rgba(241, 236, 227, 0.5) !important;
+}
+
+.btn-back {
+    background: rgba(255, 255, 255, 0.10);
+    border: none;
+    color: #f1ece3;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Assign by Email button */
+.btn-primary {
+    background: linear-gradient(180deg, #dc8b3e, #bf6d27);
+    color: white;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+.btn-primary:hover {
+    background: linear-gradient(180deg, #e3964b, #c77a33);
+    color: white;
+    box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Unassign button */
+.btn-outline-danger,
+table .btn-outline-danger {
+    border-color: #c7625a !important;
+    color: #f0a39b !important;
+    box-shadow: none;
+}
+.btn-outline-danger:hover,
+table .btn-outline-danger:hover {
+    background: #b8544b !important;
+    color: white !important;
+    box-shadow: 0 5px 0 #8a3a33, 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Assign button */
+.btn-success,
+table .btn-success {
+    background: #5b8a4a !important;
+    border: none;
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 3px 0 #43693a, 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+.btn-success:hover,
+table .btn-success:hover {
+    background: #689857 !important;
+    box-shadow: 0 5px 0 #43693a, 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Tables */
+table, table * {
+    background: transparent !important;
+    color: #f1ece3 !important;
+}
+
+thead tr {
+    background: #272d3b !important;
+    border-radius: 10px;
+}
+thead th {
+    padding: 15px;
+    font-weight: 700;
+    color: #a3c98f !important;
+    border: none;
+}
+
+tbody tr {
+    background: #252a37 !important;
+    border-radius: 12px;
+    transition: 0.25s;
+}
+
+tbody tr:hover {
+    background: #2c3241 !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+tbody td {
+    padding: 16px 20px !important;
+    border: none !important;
+}
+
+.text-muted,
+table .text-muted {
+    color: #b9b2a6 !important;
+}
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2>Assign TA to Course</h2>
+            <p class="subtitle">
+                {{ course.code }} — {{ course.name }} (Section {{ course.section }})
+            </p>
+        </div>
+
+        <a href="/admin/courses/" class="btn-back">← Back to Courses</a>
+    </div>
+
+
+
+
+    <!-- Assign by Email -->
+    <div class="neon-card">
+        <h4 class="mb-2">Assign TA by Email</h4>
+        <p class="text-muted">Enter a TA’s email if they do not appear in the list below.</p>
+
+        <form method="POST" action="{% url 'admin_course_section_assign_ta' course_id %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="assign">
+
+            <div class="input-group">
+                <input type="email" name="ta_email" class="form-control"
+                       placeholder="Enter TA email" required>
+                <button class="btn btn-primary">Assign to Course</button>
+            </div>
+        </form>
+    </div>
+
+
+
+
+    <!-- Assigned TAs -->
+    <div class="neon-card">
+        <h4 class="mb-3">Assigned TAs</h4>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for ta in assigned_tas %}
+                    <tr>
+                        <td>{{ ta.first_name }} {{ ta.last_name }}</td>
+                        <td>{{ ta.email }}</td>
+
+                        <td class="text-end">
+                            <form method="POST"
+                                  action="{% url 'admin_course_section_assign_ta' course_id %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="ta_email" value="{{ ta.email }}">
+                                <input type="hidden" name="action" value="unassign">
+
+                                <button class="btn btn-sm btn-outline-danger">
+                                    Unassign
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">
+                            No TAs assigned yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+    <!-- Other TAs -->
+    <div class="neon-card">
+        <h4 class="mb-3">Other TAs</h4>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for ta in unassigned_tas %}
+                    <tr>
+                        <td>{{ ta.first_name }} {{ ta.last_name }}</td>
+                        <td>{{ ta.email }}</td>
+
+                        <td class="text-end">
+                            <form method="POST"
+                                  action="{% url 'admin_course_section_assign_ta' course_id %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="ta_email" value="{{ ta.email }}">
+                                <input type="hidden" name="action" value="assign">
+
+                                <button class="btn btn-sm btn-success">
+                                    Assign to Course
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">
+                            No other TAs available.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    /* Rise to the top, then sink back down, like wax in a lamp */
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    /* Wobbly, stretching shape */
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== Banner ===== */
+    .instructor-banner {
+        background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 40px;
+        border-radius: 18px;
+        margin-bottom: 28px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+    .instructor-banner h1 {
+        color: #eba35c;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* ===== Headings ===== */
+    .section-title {
+        color: #a3c98f;
+        font-weight: 700;
+    }
+
+    /* ===== Buttons ===== */
+    .action-btn {
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        transition: 0.22s ease-in-out;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: 0.2px;
+    }
+    .action-btn:hover { transform: translateY(-3px); }
+
+    .btn-oh { box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3); background: #c77d2e; color: white; }
+    .btn-oh:hover { background: #d58b3b; box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-report { box-shadow: 0 4px 0 #a8841f, 0 8px 16px rgba(0, 0, 0, 0.3); background: #d9b24a; color: #3b3012; }
+    .btn-report:hover { background: #e3bf5a; box-shadow: 0 6px 0 #a8841f, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-students { box-shadow: 0 4px 0 #43693a, 0 8px 16px rgba(0, 0, 0, 0.3); background: #5b8a4a; color: white; }
+    .btn-students:hover { background: #689857; box-shadow: 0 6px 0 #43693a, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-res { box-shadow: 0 4px 0 #35625e, 0 8px 16px rgba(0, 0, 0, 0.3); background: #4d8580; color: white; }
+    .btn-res:hover { background: #5a938e; box-shadow: 0 6px 0 #35625e, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    /* ===== Action Blocks (top) ===== */
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+        margin-bottom: 24px;
+    }
+
+    .action-block {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius: 18px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        transition: 0.25s ease-in-out;
+    }
+
+    .action-block:hover {
+        transform: translateY(-5px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 26px 56px rgba(0, 0, 0, 0.45);
+    }
+
+    .action-block h3 {
+        color: #f1ece3;
+        margin: 0 0 8px 0;
+        font-weight: 800;
+    }
+
+    .action-block p {
+        color: #b9b2a6;
+        margin: 0 0 12px 0;
+        opacity: 0.95;
+    }
+
+    .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+    /* ===== Courses header with Reports on right ===== */
+    .courses-header{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 28px 0 16px 0;
+    }
+
+    /* ===== Courses as Squares (grid) ===== */
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 18px;
+        margin-top: 10px;
+    }
+
+    .course-tile {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius: 18px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        transition: 0.25s ease-in-out;
+
+        /* "square-ish" */
+        min-height: 220px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .course-tile:hover {
+        transform: translateY(-6px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 26px 56px rgba(0, 0, 0, 0.45);
+        border-color: rgba(235, 163, 92, 0.45);
+    }
+
+    .course-tile h4 {
+        color: #f1ece3;
+        margin: 0 0 8px 0;
+        font-weight: 900;
+        line-height: 1.2;
+    }
+
+    .course-tile .meta {
+        color: #b9b2a6;
+        margin: 0 0 14px 0;
+        font-size: 0.95rem;
+        opacity: 0.95;
+    }
+
+    .course-tile .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+</style>
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+<div class="instructor-banner">
+    <h1>Welcome, {{ user.first_name }}</h1>
+</div>
+
+<div class="container">
+
+    <!-- ===================== ACTIONS (TOP) ===================== -->
+    <h2 class="section-title" style="margin: 0 0 16px 0;">Actions</h2>
+
+    <div class="action-grid">
+
+        <!-- OFFICE HOURS -->
+        <div class="action-block">
+            <h3>🕐 Office Hours</h3>
+            <p>Manage, approve, cancel, or propose office hours.</p>
+
+            <div class="action-row">
+                <button class="action-btn btn-oh"
+                        onclick="window.location.href='{% url 'instructor_office_hours' %}'">
+                    🕐 Office Hours
+                </button>
+
+                <button class="action-btn btn-oh"
+                        onclick="window.location.href='{% url 'instructor_pending_office_hours' %}'">
+                    📅 Pending Office Hours
+                </button>
+
+                <button class="action-btn btn-oh"
+                        onclick="window.location.href='{% url 'instructor_cancel_office_hours' %}'">
+                    🗑️ Cancel Office Hours
+                </button>
+
+                <!-- shared staff page (TA + Instructor) -->
+                <button class="action-btn btn-oh"
+                        onclick="window.location.href='{% url 'staff_office_hours_propose' %}'">
+                    ➕ Propose an Office Hour
+                </button>
+            </div>
+        </div>
+
+        <!-- RESERVATIONS -->
+        <div class="action-block">
+            <h3>📅 Reservations</h3>
+            <p>Record attendance and view upcoming reservations.</p>
+
+            <div class="action-row">
+                <button class="action-btn btn-report"
+                        onclick="window.location.href='{% url 'record_attendance' %}'">
+                    ✏️ Record Attendance
+                </button>
+
+                <!-- shared staff page (TA + Instructor) -->
+                <button class="action-btn btn-res"
+                        onclick="window.location.href='{% url 'staff_upcoming_reservations' %}'">
+                    📌 Upcoming Reservations
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="courses-header">
+        <h2 class="section-title" style="margin: 0;">My Courses</h2>
+
+        <button class="action-btn btn-report"
+                onclick="window.location.href='{% url 'instructor_reports' %}'">
+            📊 Reports
+        </button>
+    </div>
+
+    {% if courses %}
+        <div class="courses-grid">
+            {% for course in courses %}
+                <div class="course-tile">
+                    <div>
+                        <h4>{{ course.name }}</h4>
+                        <p class="meta">
+                            <strong>Code:</strong> {{ course.code }}<br>
+                            <strong>Section:</strong> {{ course.section }}
+                        </p>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="action-btn btn-students"
+                                onclick="window.location.href='{% url 'instructor_student_manage' course_id=course.code %}'">
+                            👥 Manage Students
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #b9b2a6;">No courses assigned yet.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

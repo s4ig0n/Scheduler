@@ -1,0 +1,175 @@
+{% extends "SchedulerApp/base.html" %}
+{% block title %}Cancel Office Hours{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+<style>
+  body { background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh; }
+
+  .instructor-banner {
+    background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    padding: 40px;
+    border-radius: 18px;
+    margin-bottom: 35px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+  }
+  .instructor-banner h1 {
+    color: #eba35c;
+    font-weight: 700;
+  }
+
+  .course-section { margin-top: 40px; }
+  .course-section h2 {
+    color: #a3c98f;
+    margin-bottom: 20px;
+  }
+
+  .course-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+    transition: 0.25s ease-in-out;
+  }
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 26px 56px rgba(0, 0, 0, 0.45);
+  }
+  .course-card h3 { color: #f1ece3; margin-bottom: 10px; }
+  .course-card p { color: #b9b2a6; margin-bottom: 10px; }
+
+  .action-btn {
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    transition: 0.22s ease-in-out;
+    cursor: pointer;
+  }
+
+  .btn-delete { background: #b8544b; color: white; }
+  .btn-delete:hover { background: #c7625a; box-shadow: 0 4px 12px rgba(184, 84, 75, 0.4); }
+
+  .msg {
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 10px 0 20px 0;
+    font-weight: 600;
+  }
+  .msg-success { background: rgba(163, 201, 143, 0.14); color: #a3c98f; border: 1px solid rgba(163, 201, 143, 0.35); }
+  .msg-error { background: rgba(240, 163, 155, 0.14); color: #f0a39b; border: 1px solid rgba(240, 163, 155, 0.35); }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== 3D button edges (matches login button) ===== */
+    .btn-delete { box-shadow: 0 4px 0 #8a3a33, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-delete:hover { box-shadow: 0 6px 0 #8a3a33, 0 12px 20px rgba(0, 0, 0, 0.35); }
+</style>
+
+<div class="instructor-banner">
+  <h1>Cancel Office Hours</h1>
+</div>
+
+<div class="container">
+  <div class="course-section">
+    <h2>✅ Approved Office Hours</h2>
+
+    {% if success %}
+      <div class="msg msg-success">{{ success }}</div>
+    {% endif %}
+    {% if error %}
+      <div class="msg msg-error">{{ error }}</div>
+    {% endif %}
+
+    {% if office_hours %}
+      {% for oh in office_hours %}
+        <div class="course-card">
+          <h3>{{ oh.staff_name }}</h3>
+          <p><strong>Courses:</strong> {{ oh.courses }}</p>
+          <p><strong>Time:</strong> {{ oh.day }} — {{ oh.start }} to {{ oh.end }}</p>
+
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="office_hour_id" value="{{ oh.id }}">
+            <button type="submit" class="action-btn btn-delete">
+              Cancel Office Hours
+            </button>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:#b9b2a6;">No approved office hours found.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

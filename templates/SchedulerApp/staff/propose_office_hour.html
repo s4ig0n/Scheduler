@@ -1,0 +1,259 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Propose Office Hour{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+        color: #f1ece3;
+    }
+
+    h2 {
+        color: #eba35c;
+    }
+
+    .card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        border-radius: 14px;
+    }
+
+    .card-body {
+        padding: 28px;
+    }
+
+    label {
+        color: #f1ece3;
+        font-weight: 600;
+    }
+
+    .form-select,
+    .form-control {
+        color-scheme: dark;
+        background: #232836;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f1ece3;
+    }
+
+    .form-select option {
+        background: #232836;
+        color: #f1ece3;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #eba35c;
+        box-shadow: 0 0 0 3px rgba(235, 163, 92, 0.3);
+        background: #2a3040;
+        color: #fffaf2;
+    }
+
+    .invalid-feedback {
+        color: #f0a39b;
+    }
+
+    .btn-primary {
+        background: linear-gradient(180deg, #dc8b3e, #bf6d27);
+        border: none;
+        box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3);
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.10);
+        border: none;
+        color: #f1ece3;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .alert-success {
+        background: rgba(163, 201, 143, 0.14);
+        border-left: 4px solid #5b8a4a;
+        color: #a3c98f;
+        font-size: 1rem;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Propose Office Hour</h2>
+
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- ===================== COURSE ===================== -->
+                <div class="mb-3">
+                    <label class="form-label">Courses</label>
+                    <select name="course_id"
+                            multiple
+                            class="form-select {% if errors.course_id %}is-invalid{% endif %}">
+                        <option value="" disabled>Hold Ctrl (Cmd on Mac) to select multiple</option>
+                        {% for c in courses %}
+                            <option value="{{ c.id }}"
+                                {% if old.course_id == c.id|stringformat:"s" %}selected{% endif %}>
+                                {{ c.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.course_id %}
+                        <div class="invalid-feedback d-block">{{ errors.course_id }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- ===================== DAY OF WEEK ===================== -->
+                <div class="mb-3">
+                    <label class="form-label">Day of Week</label>
+                    <select name="day_of_week" class="form-select {% if errors.day_of_week %}is-invalid{% endif %}">
+                        <option value="" disabled {% if not old.day_of_week %}selected{% endif %}>Select day</option>
+                        <option value="M" {% if old.day_of_week == "M" %}selected{% endif %}>Monday</option>
+                        <option value="T" {% if old.day_of_week == "T" %}selected{% endif %}>Tuesday</option>
+                        <option value="W" {% if old.day_of_week == "W" %}selected{% endif %}>Wednesday</option>
+                        <option value="R" {% if old.day_of_week == "R" %}selected{% endif %}>Thursday</option>
+                        <option value="F" {% if old.day_of_week == "F" %}selected{% endif %}>Friday</option>
+                    </select>
+                    {% if errors.day_of_week %}
+                        <div class="invalid-feedback d-block">{{ errors.day_of_week }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- ===================== START TIME ===================== -->
+                <div class="mb-3">
+                    <label class="form-label">Start Time</label>
+                    <input type="time"
+                           name="start_time"
+                           step="900"
+                           value="{{ old.start_time }}"
+                           class="form-control {% if errors.start_time %}is-invalid{% endif %}">
+                    {% if errors.start_time %}
+                        <div class="invalid-feedback d-block">{{ errors.start_time }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- ===================== END TIME ===================== -->
+                <div class="mb-3">
+                    <label class="form-label">End Time</label>
+                    <input type="time"
+                           name="end_time"
+                           step="900"
+                           value="{{ old.end_time }}"
+                           class="form-control {% if errors.end_time %}is-invalid{% endif %}">
+                    {% if errors.end_time %}
+                        <div class="invalid-feedback d-block">{{ errors.end_time }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- ===================== SOFTWARE ===================== -->
+                <div class="mb-3">
+                    <label class="form-label">Software</label>
+                    <select name="software" class="form-select {% if errors.software %}is-invalid{% endif %}">
+                        <option value="" disabled {% if not old.software %}selected{% endif %}>Select software</option>
+                        <option value="Microsoft Teams" {% if old.software == "Microsoft Teams" %}selected{% endif %}>Microsoft Teams</option>
+                        <option value="Zoom" {% if old.software == "Zoom" %}selected{% endif %}>Zoom</option>
+                        <option value="In-Person" {% if old.software == "In-Person" %}selected{% endif %}>In-Person</option>
+                    </select>
+                    {% if errors.software %}
+                        <div class="invalid-feedback d-block">{{ errors.software }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- ===================== BUTTONS ===================== -->
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Submit Proposal</button>
+                    <a href="{% url 'ta_home' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body { background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh; color: #f1ece3; }
+    .page-banner {
+        background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 30px;
+        border-radius: 18px;
+        margin-bottom: 35px;
+        text-align: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+    .page-banner h1 {
+        color: #eba35c;
+        font-weight:700;
+        margin:0;
+    }
+    .neon-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius:18px;
+        padding:30px;
+        border:1px solid rgba(255, 255, 255, 0.22);
+        box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        max-width:600px;
+        margin:0 auto 50px auto;
+    }
+    .student-info-box {
+        background: rgba(230, 197, 106, 0.10);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        border-left: 4px solid #d9b24a;
+    }
+    .student-info-box p {
+        margin: 8px 0;
+        color: #f1ece3;
+    }
+    .student-info-box strong {
+        color: #e6c56a;
+    }
+    .section-divider {
+        margin: 30px 0;
+        border-top: 2px dashed rgba(255, 255, 255, 0.15);
+        padding-top: 25px;
+    }
+    .section-title {
+        color: #a3c98f;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+    label {
+        font-weight:600;
+        margin-bottom:6px;
+        display:block;
+        color:#f1ece3;
+    }
+    .form-control {
+        background: rgba(255, 255, 255, 0.07);
+        border:1px solid rgba(255, 255, 255, 0.18);
+        color:#f1ece3;
+        border-radius:10px;
+        padding:12px;
+        width:100%;
+        margin-bottom:20px;
+    }
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.11);
+        border-color:#eba35c;
+        box-shadow:0 0 0 3px rgba(235, 163, 92, 0.3);
+        color:#f1ece3;
+        outline: none;
+    }
+    .help-text {
+        font-size: 0.85rem;
+        color: #b9b2a6;
+        margin-top: -15px;
+        margin-bottom: 20px;
+    }
+    .btn-save {
+        background: linear-gradient(90deg,#d08a3c,#c07428);
+        border:none;
+        color:white;
+        font-weight:600;
+        padding:12px 26px;
+        border-radius:12px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.3);
+        cursor:pointer;
+        transition:0.25s;
+    }
+    .btn-save:hover {
+        transform:translateY(-2px);
+        box-shadow:0 8px 18px rgba(0,0,0,0.35);
+    }
+    .btn-cancel {
+        background:rgba(255,255,255,0.10);
+        border:none;
+        font-weight:600;
+        padding:12px 26px;
+        color:#f1ece3;
+        border-radius:12px;
+        text-decoration:none;
+        display:inline-block;
+        text-align:center;
+        transition:0.2s;
+    }
+    .btn-cancel:hover {
+        background:rgba(255,255,255,0.16);
+        color:#ffffff;
+        box-shadow:0 4px 12px rgba(0,0,0,0.3);
+        transform:translateY(-2px);
+    }
+    .alert-danger {
+        background: rgba(240, 163, 155, 0.14);
+        border-left:4px solid #b8544b;
+        color:#f0a39b;
+        border-radius:8px;
+        padding:12px;
+        margin-bottom:20px;
+    }
+    .alert-success {
+        background: rgba(163, 201, 143, 0.14);
+        border-left:4px solid #5b8a4a;
+        color:#a3c98f;
+        border-radius:8px;
+        padding:12px;
+        margin-bottom:20px;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== 3D button edges (matches login button) ===== */
+    .btn-save { box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-save:hover { box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35); }
+</style>
+
+<div class="page-banner">
+    <h1>✏️ Edit Student</h1>
+</div>
+
+<div class="neon-card">
+
+    {% if error %}
+        <div class="alert-danger">❌ {{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div class="alert-success">✅ {{ success }}</div>
+    {% endif %}
+
+    <!-- Current Student Info -->
+    <div class="student-info-box">
+        <p><strong>Student ID:</strong> {{ student.id }}</p>
+        <p><strong>Current Email:</strong> {{ student.email }}</p>
+        <p><strong>Current Name:</strong> {{ student.first_name }} {{ student.last_name }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Basic Information Section -->
+        <div class="section-title">📋 Basic Information</div>
+
+        <label for="email">Email Address</label>
+        <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{ student.email }}"
+            placeholder="student@example.com"
+            class="form-control"
+        >
+        <div class="help-text">Student's email address for login</div>
+
+        <label for="first_name">First Name</label>
+        <input
+            type="text"
+            id="first_name"
+            name="first_name"
+            value="{{ student.first_name }}"
+            placeholder="First name"
+            class="form-control"
+        >
+
+        <label for="last_name">Last Name</label>
+        <input
+            type="text"
+            id="last_name"
+            name="last_name"
+            value="{{ student.last_name }}"
+            placeholder="Last name"
+            class="form-control"
+        >
+
+        <!-- Password Reset Section -->
+        <div class="section-divider">
+            <div class="section-title">🔐 Reset Password (Optional)</div>
+
+            <label for="password">New Password</label>
+            <input
+                type="text"
+                id="password"
+                name="password"
+                placeholder="Leave blank to keep current password"
+                class="form-control"
+            >
+            <div class="help-text">Only enter a password if you want to change it</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+            <a href="{% url 'instructor_student_list' course_id=course_id %}" class="btn-cancel">← Cancel</a>
+            <button type="submit" class="btn-save">💾 Save Changes</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Upcoming Reservations - Scheduler{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+        color: #f1ece3;
+    }
+
+    h2.page-title {
+        color: #eba35c;
+        font-weight: 700;
+        margin-top: 24px;
+        margin-bottom: 18px;
+    }
+
+    .reservations-subtitle {
+        color: #b9b2a6;
+        margin-bottom: 20px;
+    }
+
+    /* ========== NEON TABLE ========== */
+
+    .neon-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 10px;
+    }
+
+    table.neon-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+        color: #f1ece3;
+        background: transparent !important;
+    }
+
+    table.neon-table thead tr {
+        background: #272d3b !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    table.neon-table thead th {
+        padding: 14px 12px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #a3c98f;
+        border: none !important;
+    }
+
+    table.neon-table tbody tr {
+        background: #1e2330 !important;
+        border-radius: 14px;
+        transition: 0.18s ease-in-out;
+    }
+
+    table.neon-table tbody tr:hover {
+        background: #262c3a !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    table.neon-table tbody td {
+        padding: 14px 12px;
+        border: none !important;
+        font-size: 0.9rem;
+    }
+
+    table.neon-table .text-muted {
+        color: #b9b2a6 !important;
+    }
+
+    .software-pill {
+        background: rgba(230, 197, 106, 0.16);
+        border: 1px solid rgba(230, 197, 106, 0.45);
+        color: #e6c56a;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+    }
+
+    .no-reservations {
+        padding: 18px 4px 8px 4px;
+        color: #b9b2a6;
+        font-size: 0.98rem;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container px-0">
+    <h2 class="page-title">Upcoming Reservations</h2>
+    <p class="reservations-subtitle">
+        These are your upcoming student reservations for office hours.
+    </p>
+
+    <div class="neon-table-wrapper">
+        {% if reservations|length > 0 %}
+            <table class="neon-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Student</th>
+                        <th>Student Email</th>
+                        <th>When</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in reservations %}
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">
+                                    {{ r.course_code }}
+                                    {% if r.course_name %}
+                                        — {{ r.course_name }}
+                                    {% endif %}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="fw-semibold">{{ r.student_name }}</span>
+                            </td>
+
+                            <td>
+                                <small>{{ r.student_email }}</small>
+                            </td>
+
+                            <td>
+                                <div>{{ r.start|date:"D, M j, Y" }}</div>
+                                <small>{{ r.start|time:"H:i" }} – {{ r.end|time:"H:i" }}</small>
+                            </td>
+
+                            <td>
+                                {% if r.location %}
+                                    <span class="software-pill">{{ r.location }}</span>
+                                {% else %}
+                                    <small class="text-muted">N/A</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% else %}
+            <div class="no-reservations">
+                You have no upcoming reservations with status "Reserved".
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

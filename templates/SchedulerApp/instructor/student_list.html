@@ -1,0 +1,198 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Students - {{ course.name }}{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    .banner {
+        background: linear-gradient(135deg, rgba(163, 201, 143, 0.20), rgba(230, 197, 106, 0.06));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 30px;
+        border-radius: 18px;
+        margin-bottom: 30px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        color: #a3c98f;
+    }
+
+    .student-table {
+        background: #1e2330;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    table {
+        width: 100%;
+        color: #f1ece3;
+    }
+
+    th {
+        color: #a3c98f;
+        text-align: left;
+        padding: 15px;
+        border-bottom: 2px solid #6a9a58;
+    }
+
+    td {
+        padding: 12px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    tr:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-edit {
+        background: #c77d2e;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: #d58b3b;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-back {
+        background: #4d8580;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        border: none;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .btn-back:hover {
+        background: #5a938e;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== 3D button edges (matches login button) ===== */
+    .btn-edit { box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-edit:hover { box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35); }
+    .btn-back { box-shadow: 0 4px 0 #35625e, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-back:hover { box-shadow: 0 6px 0 #35625e, 0 12px 20px rgba(0, 0, 0, 0.35); }
+</style>
+
+<div class="banner">
+    <h1>📋 Students in {{ course.name }} ({{ course.section }})</h1>
+    <p>Course Code: {{ course.code }}</p>
+</div>
+
+<div class="container">
+    <div class="student-table">
+        {% if students %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.first_name }} {{ student.last_name }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>
+                        <button class="btn-edit"
+                                onclick="window.location.href='{% url 'instructor_student_edit' course_id=course_id student_id=student.id %}'">
+                            ✏️ Edit / Reset Password
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #b9b2a6; text-align: center;">No students found in this course.</p>
+        {% endif %}
+
+        <div class="text-center">
+            <button class="btn-back"
+                    onclick="window.location.href='{% url 'instructor_student_manage' course_id=course_id %}'">
+                ← Back to Student Management
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

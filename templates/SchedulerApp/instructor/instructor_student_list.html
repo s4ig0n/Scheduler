@@ -1,0 +1,143 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Edit Students{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+        color: #f1ece3;
+    }
+
+    h2 { color: #eba35c; font-weight: 700; }
+    h3 { color: #a3c98f; }
+
+    /* Solid table surface (Bootstrap 5.3 table variables) */
+    .table {
+        --bs-table-bg: #1e2330;
+        --bs-table-color: #f1ece3;
+        --bs-table-striped-bg: #232836;
+        --bs-table-striped-color: #f1ece3;
+        --bs-table-border-color: rgba(255, 255, 255, 0.08);
+    }
+    .table thead th {
+        background: #272d3b;
+        color: #a3c98f;
+    }
+
+    /* Bootstrap's blue button -> orange with the 3D edge */
+    .btn-primary {
+        background: linear-gradient(180deg, #dc8b3e, #bf6d27);
+        border: none;
+        color: #ffffff;
+        font-weight: 600;
+        box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3);
+        transition: 0.22s ease-in-out;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background: linear-gradient(180deg, #e3964b, #c77a33);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<h2>Students for Your Courses</h2>
+
+{% for cs in course_students %}
+    <h3>{{ cs.course.code }} - {{ cs.course.name }} ({{ cs.course.section }})</h3>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in cs.students %}
+            <tr>
+                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>
+                    <a href="{% url 'instructor_student_edit' course_id=cs.course.code student_id=student.id %}">
+                        <button class="btn btn-primary">Edit</button>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No students enrolled.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,449 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Student Office Hours{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+        color: #f1ece3;
+    }
+
+    h2 {
+        color: #eba35c;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    /* Filter card = glass; the card holding the week grid = solid */
+    .neon-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius: 18px;
+        padding: 24px 28px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        margin-top: 18px;
+        margin-bottom: 18px;
+    }
+
+    .neon-card:has(table) {
+        background: #1e2330;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    label,
+    p,
+    .form-text {
+        color: #f1ece3 !important;
+    }
+
+    .text-muted {
+        color: #b9b2a6 !important;
+    }
+
+    .form-control,
+    .form-select {
+        color-scheme: dark;
+        background: #232836;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f1ece3;
+    }
+
+    .form-select option {
+        background: #232836;
+        color: #f1ece3;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: #2a3040;
+        border-color: #eba35c;
+        box-shadow: 0 0 0 3px rgba(235, 163, 92, 0.3);
+        color: #fffaf2;
+    }
+
+    .btn-primary {
+        background: linear-gradient(180deg, #dc8b3e, #bf6d27);
+        border: none;
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 22px;
+        box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3);
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(180deg, #e3964b, #c77a33);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-success {
+        background: #5b8a4a;
+        border: none;
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 6px 14px;
+        box-shadow: 0 3px 0 #43693a, 0 6px 16px rgba(0, 0, 0, 0.3);
+        transition: 0.2s;
+    }
+
+    .btn-success:hover {
+        background: #689857;
+        box-shadow: 0 5px 0 #43693a, 0 10px 20px rgba(0, 0, 0, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-secondary {
+        border-radius: 12px;
+        border-color: rgba(255, 255, 255, 0.22);
+        color: #f1ece3;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 6px 15px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .btn-outline-secondary:hover {
+        background: rgba(255, 255, 255, 0.16);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .alert-success {
+        background: rgba(163, 201, 143, 0.14);
+        border-color: rgba(163, 201, 143, 0.45);
+        color: #a3c98f;
+    }
+
+    .alert-danger {
+        background: rgba(240, 163, 155, 0.14);
+        border-color: rgba(240, 163, 155, 0.45);
+        color: #f0a39b;
+    }
+
+    /* Bootstrap's dark close "x" -> light, so it shows on dark alerts */
+    .alert .btn-close {
+        filter: invert(1) grayscale(1) brightness(1.6);
+    }
+
+    .neon-divider {
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: none;
+    }
+
+    /* Week grid */
+    .office-hours-table-wrapper {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    table.office-hours-table,
+    table.office-hours-table * {
+        background: transparent !important;
+        color: #f1ece3 !important;
+    }
+
+    .office-hours-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+    }
+
+    .office-hours-table thead tr {
+        background: #272d3b !important;
+    }
+
+    .office-hours-table thead th {
+        background: #272d3b !important;
+        color: #a3c98f !important;
+        padding: 10px 12px;
+        font-weight: 700;
+        border: none !important;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .office-hours-table tbody tr {
+        background: #252a37 !important;
+    }
+
+    .office-hours-table tbody tr:hover {
+        background: #2c3241 !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .office-hours-table td,
+    .office-hours-table th {
+        border-top: none !important;
+        border-bottom: none !important;
+        padding: 8px 10px !important;
+        vertical-align: top;
+    }
+
+    .office-hours-table .day-col {
+        width: 14%;
+        min-width: 140px;
+        text-align: center;
+    }
+
+    .office-hours-table .time-col {
+        width: 10%;
+        min-width: 80px;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .oh-cell,
+    .oh-cell-empty {
+        min-width: 140px;
+    }
+
+    .office-hours-table .oh-cell-empty {
+        background: #1a1f2b !important;
+    }
+
+    .oh-block {
+        border-radius: 10px;
+        padding: 6px 7px;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 6px;
+    }
+
+    .office-hours-table .oh-block-free {
+        background: linear-gradient(135deg, rgba(163, 201, 143, 0.20), rgba(91, 138, 74, 0.12)) !important;
+        box-shadow: inset 0 0 0 1px rgba(163, 201, 143, 0.45);
+    }
+
+    .office-hours-table .oh-block-reserved {
+        background: rgba(255, 255, 255, 0.06) !important;
+    }
+
+    .office-hours-table .text-muted {
+        color: #b9b2a6 !important;
+    }
+
+    .office-hours-table .btn-success {
+        background: #5b8a4a !important;
+        color: #ffffff !important;
+    }
+
+    .office-hours-table .btn-success:hover {
+        background: #689857 !important;
+    }
+
+    .oh-block .badge {
+        border-radius: 999px;
+    }
+
+    .office-hours-table .badge {
+        background: #3a4152 !important;
+        color: #b9b2a6 !important;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container-fluid mt-3 mb-4">
+
+    <h2>Office Hours</h2>
+    <p class="text-muted">
+        Below you can see office hours for the courses you are enrolled in.
+    </p>
+
+    {% if success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="neon-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="courseFilter" class="form-label">Course</label>
+                <select id="courseFilter" name="course" class="form-select">
+                    <option value="">All my courses</option>
+                    {% for c in courses %}
+                        <option value="{{ c.code }}" {% if c.code == selected_course %}selected{% endif %}>
+                            {{ c.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 mt-1">Apply filters</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Week grid -->
+    <div class="neon-card">
+
+        <!-- Week navigation -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <a href="?week_start={{ prev_week_start }}{% if selected_course %}&course={{ selected_course }}{% endif %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    &lt;
+                </a>
+                <span class="fw-semibold">
+                    Week: {{ week_label }}
+                </span>
+                <a href="?week_start={{ next_week_start }}{% if selected_course %}&course={{ selected_course }}{% endif %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    &gt;
+                </a>
+            </div>
+        </div>
+
+        <hr class="neon-divider">
+
+        {% if rows %}
+            <div class="office-hours-table-wrapper">
+                <table class="table office-hours-table align-middle">
+                    <thead>
+                        <tr>
+                            <th class="time-col">Time</th>
+                            {% for d in days %}
+                                <th class="day-col">{{ d.label }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in rows %}
+                        <tr>
+                            <th class="time-col align-middle">
+                                {{ row.time }}
+                            </th>
+                            {% for cell in row.cells %}
+                                {% if cell.entries %}
+                                    <td class="oh-cell">
+                                        {% for e in cell.entries %}
+                                            <div class="oh-block {% if e.is_reserved %}oh-block-reserved{% else %}oh-block-free{% endif %}">
+                                                <div class="fw-semibold small">
+                                                    {{ e.staff_name }}
+                                                </div>
+                                                <div class="small text-muted">
+                                                    {{ e.location }}
+                                                </div>
+                                                <div class="small">
+                                                    Courses: {{ e.courses|join:", " }}
+                                                </div>
+
+                                                {% if e.is_reserved %}
+                                                    <span class="badge bg-secondary mt-1">Reserved</span>
+                                                {% else %}
+                                                    <form method="get"
+                                                          action="{% url 'create_reservation' e.office_hour_id %}"
+                                                          class="mt-2">
+                                                        <input type="hidden" name="start" value="{{ e.start_time_str }}">
+                                                        <input type="hidden" name="week_start" value="{{ week_start }}">
+                                                        <input type="hidden" name="day" value="{{ cell.day_code }}">
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            Reserve
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </td>
+                                {% else %}
+                                    <td class="oh-cell-empty"></td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">
+                No approved office hours found for your courses.
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

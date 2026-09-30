@@ -1,0 +1,303 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}TA Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    /* ===== Banner ===== */
+    .ta-banner {
+        background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 40px;
+        border-radius: 18px;
+        margin-bottom: 28px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    .ta-banner h1 {
+        color: #eba35c;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .ta-banner p {
+        color: #b9b2a6;
+        margin: 8px 0 0;
+    }
+
+    @keyframes pulseGlow {
+        from { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4); }
+        to   { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 20px 50px rgba(235, 163, 92, 0.16); }
+    }
+
+    /* ===== Section headings ===== */
+    .section-title {
+        color: #a3c98f;
+        font-weight: 700;
+        margin: 0 0 14px 0;
+    }
+
+    /* ===== Cards (liquid glass) ===== */
+    .ta-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius: 18px;
+        padding: 24px;
+        color: #f1ece3;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        transition: 0.25s ease-in-out;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        height: 100%;
+
+        /* keep every button pinned to the bottom so they line up */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ta-card:hover {
+        transform: translateY(-6px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 26px 56px rgba(0, 0, 0, 0.45);
+        border-color: rgba(235, 163, 92, 0.45);
+    }
+
+    .ta-card h3 {
+        color: #f1ece3;
+        font-weight: 800;
+        font-size: 1.35rem;
+        margin-bottom: 8px;
+    }
+
+    .ta-card p {
+        color: #b9b2a6;
+        margin: 0 0 10px 0;
+    }
+
+    .ta-card .action-btn {
+        margin-top: auto;
+    }
+
+    /* Denied-proposals notice: red-tinted glass */
+    .ta-card.ta-alert {
+        background: linear-gradient(135deg, rgba(240, 163, 155, 0.18), rgba(240, 163, 155, 0.05));
+        border-color: rgba(240, 163, 155, 0.5);
+    }
+
+    .ta-card.ta-alert h3 {
+        color: #f0a39b;
+    }
+
+    .ta-card.ta-alert ul {
+        color: #f1ece3;
+        margin-bottom: 15px;
+    }
+
+    .ta-card.ta-alert .action-btn {
+        max-width: 220px;
+        margin-top: 0;
+    }
+
+    /* ===== Buttons (3D edge, like the login button) ===== */
+    .action-btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 14px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border: none;
+        letter-spacing: 0.3px;
+        margin-top: 12px;
+        transition: 0.22s ease-in-out;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .btn-view { background: #c77d2e; color: white; box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-view:hover { background: #d58b3b; box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-new { background: #5b8a4a; color: white; box-shadow: 0 4px 0 #43693a, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-new:hover { background: #689857; box-shadow: 0 6px 0 #43693a, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-upcoming { background: #4d8580; color: white; box-shadow: 0 4px 0 #35625e, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-upcoming:hover { background: #5a938e; box-shadow: 0 6px 0 #35625e, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-report { background: #d9b24a; color: #3b3012; box-shadow: 0 4px 0 #a8841f, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-report:hover { background: #e3bf5a; box-shadow: 0 6px 0 #a8841f, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    .btn-dismiss { background: #b8544b; color: white; box-shadow: 0 4px 0 #8a3a33, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-dismiss:hover { background: #c7625a; box-shadow: 0 6px 0 #8a3a33, 0 12px 20px rgba(0, 0, 0, 0.35); }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+
+<!-- ========== BANNER ========== -->
+<div class="ta-banner">
+    <h1>Welcome, {{ user.first_name }}</h1>
+    <p>Manage your office hours and the students who book them.</p>
+</div>
+
+
+<!-- ========== Denied Office Hours Notification ========== -->
+{% if denied_office_hours %}
+<div class="container" style="margin-bottom: 28px;">
+    <div class="ta-card ta-alert">
+        <h3>Denied Office Hours Proposal</h3>
+        <p style="margin-bottom: 12px;">
+            You have {{ denied_office_hours|length }} denied office hour{{ denied_office_hours|length|pluralize }}.
+            Click OK to remove them.
+        </p>
+
+        <ul>
+            {% for oh in denied_office_hours %}
+                <li>
+                    #{{ oh.office_hour_id }} — {{ oh.day_of_week }} {{ oh.start_time }}–{{ oh.end_time }} ({{ oh.location }})
+                </li>
+            {% endfor %}
+        </ul>
+
+        <form method="post" action="{% url 'ta_clear_denied_office_hours' %}">
+            {% csrf_token %}
+            <button type="submit" class="action-btn btn-dismiss">
+                OK
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- ========== ACTION CARDS: 2 x 2, grouped by task ========== -->
+<div class="container">
+
+    <h2 class="section-title">Office Hours</h2>
+    <div class="row g-4 mb-5">
+
+        <!-- View Office Hours (TA) -->
+        <div class="col-md-6">
+            <div class="ta-card">
+                <h3>🕐 My Office Hours</h3>
+                <p>View your office hours calendar.</p>
+                <button class="action-btn btn-view"
+                        onclick="window.location.href='{% url 'ta_office_hours' %}'">
+                    Open
+                </button>
+            </div>
+        </div>
+
+        <!-- Propose Office Hours (Staff shared page) -->
+        <div class="col-md-6">
+            <div class="ta-card">
+                <h3>➕ Propose Office Hours</h3>
+                <p>Create a new office hour proposal.</p>
+                <button class="action-btn btn-new"
+                        onclick="window.location.href='{% url 'staff_office_hours_propose' %}'">
+                    Create
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <h2 class="section-title">Reservations</h2>
+    <div class="row g-4">
+
+        <!-- Upcoming Reservations (Staff shared page) -->
+        <div class="col-md-6">
+            <div class="ta-card">
+                <h3>📌 Upcoming Reservations</h3>
+                <p>View upcoming reservations for your office hours.</p>
+                <button class="action-btn btn-upcoming"
+                        onclick="window.location.href='{% url 'staff_upcoming_reservations' %}'">
+                    View
+                </button>
+            </div>
+        </div>
+
+        <!-- Record Attendance (Staff shared page) -->
+        <div class="col-md-6">
+            <div class="ta-card">
+                <h3>✏️ Record Attendance</h3>
+                <p>Mark reservations as attended, absent, or tardy.</p>
+                <button class="action-btn btn-report"
+                        onclick="window.location.href='{% url 'record_attendance' %}'">
+                    Open
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

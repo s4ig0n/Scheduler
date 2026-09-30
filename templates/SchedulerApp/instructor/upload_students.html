@@ -1,0 +1,319 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Upload Students{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    .upload-banner {
+        background: linear-gradient(135deg, rgba(163, 201, 143, 0.20), rgba(230, 197, 106, 0.06));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 35px;
+        border-radius: 18px;
+        margin-bottom: 30px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        color: #a3c98f;
+    }
+
+    .upload-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border-radius: 16px;
+        padding: 40px;
+        color: #f1ece3;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .upload-card h3 {
+        color: #a3c98f;
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .file-input-wrapper input[type=file] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-input-label {
+        display: block;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #a3c98f;
+        border: 2px dashed rgba(163, 201, 143, 0.55);
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .file-input-label:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: #a3c98f;
+    }
+
+    .selected-file {
+        color: #a3c98f;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .upload-btn {
+        width: 100%;
+        padding: 15px;
+        background: #5b8a4a;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 20px;
+    }
+
+    .upload-btn:hover {
+        background: #689857;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .upload-btn:disabled {
+        background: #5d5850;
+        cursor: not-allowed;
+    }
+
+    .instructions {
+        background: rgba(230, 197, 106, 0.10);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        border-left: 4px solid #d9b24a;
+    }
+
+    .instructions h4 {
+        color: #e6c56a;
+        margin-bottom: 15px;
+    }
+
+    .instructions ul {
+        color: #f1ece3;
+        padding-left: 20px;
+    }
+
+    .instructions li {
+        margin-bottom: 8px;
+    }
+
+    .results {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+
+    .success-msg {
+        color: #a3c98f;
+        font-weight: 600;
+    }
+
+    .error-msg {
+        color: #f0a39b;
+        font-weight: 600;
+    }
+
+    .btn-back {
+        background: #4d8580;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        margin-top: 20px;
+        transition: 0.22s ease-in-out;
+    }
+
+    .btn-back:hover {
+        background: #5a938e;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== 3D button edges (matches login button) ===== */
+    .upload-btn { box-shadow: 0 4px 0 #43693a, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .upload-btn:hover { box-shadow: 0 6px 0 #43693a, 0 12px 20px rgba(0, 0, 0, 0.35); }
+    .btn-back { box-shadow: 0 4px 0 #35625e, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .btn-back:hover { box-shadow: 0 6px 0 #35625e, 0 12px 20px rgba(0, 0, 0, 0.35); }
+    .upload-btn:disabled { box-shadow: none; }
+</style>
+
+<!-- ========== BANNER ========== -->
+<div class="upload-banner">
+    <h1>📤 Upload Student Data</h1>
+    <p>Import students for Course {{ course_id }}</p>
+</div>
+
+<div class="container">
+    <div class="upload-card">
+        <h3>Upload File</h3>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h4>📋 Instructions:</h4>
+            <ul>
+                <li>Upload a <strong>.txt</strong> file with emails</li>
+
+            </ul>
+        </div>
+
+        <!-- Upload Form -->
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+
+            <div class="file-input-wrapper">
+                <label class="file-input-label" for="fileInput">
+                    <span id="fileLabel">📁 Click to select file...</span>
+                </label>
+                <input type="file" id="fileInput" name="student_file" accept=".txt" required>
+            </div>
+
+            <div id="selectedFile" class="selected-file" style="display: none;"></div>
+
+            <button type="submit" class="upload-btn" id="uploadBtn" disabled>
+                Upload Students
+            </button>
+        </form>
+
+        <!-- Results -->
+        {% if results %}
+        <div class="results">
+            <h4>Upload Results:</h4>
+            <p class="success-msg">✅ Created: {{ results.created }}</p>
+            <p style="color: #e6c56a; font-weight: 600;">ℹ️ Total Linked to Course: {{ results.linked }}</p>
+            {% if results.errors %}
+            <p class="error-msg">❌ Errors: {{ results.errors|length }}</p>
+            <ul>
+                {% for error in results.errors %}
+                <li class="error-msg">{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="text-center">
+            <button class="btn-back"
+                    onclick="window.location.href='{% url 'instructor_student_manage' course_id=course_id %}'">
+                ← Back
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const selectedFile = document.getElementById('selectedFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const fileName = this.files[0].name;
+            fileLabel.textContent = `📄 ${fileName}`;
+            selectedFile.textContent = `Selected: ${fileName}`;
+            selectedFile.style.display = 'block';
+            uploadBtn.disabled = false;
+        } else {
+            fileLabel.textContent = '📁 Click to select file...';
+            selectedFile.style.display = 'none';
+            uploadBtn.disabled = true;
+        }
+    });
+</script>
+
+{% endblock %}

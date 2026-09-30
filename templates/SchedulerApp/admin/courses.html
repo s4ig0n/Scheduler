@@ -1,0 +1,264 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Courses - TA Scheduler{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+/* GLOBAL PAGE BACKGROUND */
+body {
+    background:
+        radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+        linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh;
+    color: #f1ece3 !important;
+}
+
+h2 {
+    color: #eba35c;
+    font-weight: 700;
+}
+
+.neon-card {
+    background: #1e2330;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+    border-radius: 18px;
+    padding: 30px;
+    margin-top: 25px;
+}
+
+.btn-create {
+    background: linear-gradient(180deg, #dc8b3e, #bf6d27);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 0 #9a5418, 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: 0.25s;
+}
+.btn-create:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #9a5418, 0 12px 20px rgba(0, 0, 0, 0.35);
+}
+
+table, table * {
+    background: transparent !important;
+    color: #f1ece3 !important;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+thead tr {
+    background: #272d3b !important;
+    border-radius: 10px;
+}
+thead th {
+    padding: 15px;
+    font-weight: 700;
+    color: #a3c98f !important;
+    border: none !important;
+}
+
+tbody tr {
+    background: #252a37 !important;
+    border-radius: 12px;
+    transition: 0.25s ease;
+}
+tbody tr:hover {
+    background: #2c3241 !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+tbody td {
+    padding: 16px 18px !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd),
+.table-striped > tbody > tr:nth-of-type(even) {
+    background: #252a37 !important;
+}
+
+.btn-sm {
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-weight: 600;
+}
+
+table .btn-primary.btn-sm {
+    background: linear-gradient(180deg, #dc8b3e, #bf6d27) !important;
+    border: none;
+    color: white !important;
+    box-shadow: 0 3px 0 #9a5418, 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+table .btn-primary.btn-sm:hover {
+    background: linear-gradient(180deg, #e3964b, #c77a33) !important;
+    box-shadow: 0 5px 0 #9a5418, 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+table .btn-secondary.btn-sm {
+    background: #4d8580 !important;
+    border: none;
+    color: white !important;
+    box-shadow: 0 3px 0 #35625e, 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+table .btn-secondary.btn-sm:hover {
+    background: #5a938e !important;
+    box-shadow: 0 5px 0 #35625e, 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+table .btn-danger.btn-sm {
+    background: #b8544b !important;
+    border: none;
+    color: white !important;
+    box-shadow: 0 3px 0 #8a3a33, 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+table .btn-danger.btn-sm:hover {
+    background: #c7625a !important;
+    box-shadow: 0 5px 0 #8a3a33, 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+.no-courses {
+    color: #b9b2a6;
+}
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">All Courses & Sections</h2>
+
+        <a href="/admin/courses/create/" class="btn-create">
+            + Create Course
+        </a>
+    </div>
+
+    <div class="neon-card">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Course Name</th>
+                    <th>Course Code</th>
+                    <th>Section</th>
+                    <th>Instructor</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for c in courses %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.id }}</td>
+                    <td>{{ c.section }}</td>
+                    <td>{{ c.instructor_first_name }} {{ c.instructor_last_name }}</td>
+
+                    <td>
+                        <a href="{% url 'edit_course' c.id %}" class="btn btn-primary btn-sm">
+                            Edit Course
+                        </a>
+                    </td>
+
+                    <td>
+                        <form method="POST" action="{% url 'admin_course_section_assign_ta' c.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-secondary btn-sm">
+                                Edit TA
+                            </button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form method="POST"
+                              action="{% url 'delete_course' c.id %}"
+                              onsubmit="return confirm('Are you sure you want to delete this course?');">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if courses|length == 0 %}
+            <p class="text-center no-courses mb-0">No courses yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

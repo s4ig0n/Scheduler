@@ -1,0 +1,502 @@
+{% extends "SchedulerApp/base.html" %}
+
+{% block title %}Pending Office Hours{% endblock %}
+
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    .oh-banner {
+        background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        padding: 40px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4);
+        animation: instructorPulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes instructorPulseGlow {
+        from { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 20px 50px rgba(0, 0, 0, 0.4); }
+        to   { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 10px 30px rgba(235, 163, 92, 0.14); }
+    }
+
+    .oh-banner h1 {
+        color: #eba35c;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .oh-banner p {
+        color: #b9b2a6;
+        margin: 8px 0 0;
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #eba35c;
+        border-radius: 10px;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: 0.2s ease;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .back-btn:hover {
+        background: rgba(255, 255, 255, 0.14);
+        color: #f6bd82;
+        text-decoration: none;
+        transform: translateX(-5px);
+    }
+
+    .oh-card {
+        background: #1e2330;
+        border-radius: 16px;
+        padding: 20px;
+        color: #f1ece3;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .oh-filter-label {
+        font-size: 0.9rem;
+        color: #b9b2a6;
+        margin-bottom: 4px;
+    }
+
+    .oh-filter-select,
+    .oh-filter-btn {
+        background-color: #272d3b;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f1ece3;
+        padding: 6px 10px;
+    }
+
+    .oh-filter-select:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(235, 163, 92, 0.3);
+    }
+
+    .oh-filter-btn {
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .oh-filter-btn:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .oh-table-wrapper {
+        margin-top: 20px;
+        overflow-x: auto;
+    }
+
+    table.oh-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #1e2330;
+        border-radius: 16px;
+        overflow: hidden;
+        table-layout: fixed;
+    }
+
+    .oh-table col.col-time {
+        width: 90px;
+    }
+
+    .oh-table col.col-day {
+        width: calc((100% - 90px) / 5);
+    }
+
+    table.oh-table thead {
+        background: #272d3b;
+    }
+
+    table.oh-table th,
+    table.oh-table td {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #f1ece3;
+        vertical-align: top;
+        height: 40px;
+    }
+
+    table.oh-table th.time-col {
+        width: 90px;
+        background: #232836;
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        padding: 8px;
+    }
+
+    .oh-time-label {
+        font-weight: 600;
+        color: #b9b2a6;
+    }
+
+    .oh-day-header {
+        font-weight: 600;
+        color: #a3c98f;
+        padding: 8px;
+    }
+
+    .oh-cell-empty {
+        background: transparent;
+    }
+
+    .oh-block-cell {
+        padding: 0 !important;
+        height: 100%;
+    }
+
+    /* Office Hour Block - now spans multiple rows with rowspan */
+    .oh-block {
+        background: linear-gradient(135deg, rgba(235, 163, 92, 0.20), rgba(230, 197, 106, 0.07));
+        border-radius: 10px;
+        padding: 16px;
+        font-size: 0.85rem;
+        color: #f1ece3;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.25);
+        text-align: left;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin: 4px;
+        min-height: 100%;
+    }
+
+    .oh-block.pending {
+        background: linear-gradient(135deg, rgba(230, 197, 106, 0.22), rgba(230, 197, 106, 0.08));
+        border: 2px solid #d9b24a;
+    }
+
+    .oh-block.approved {
+        background: linear-gradient(135deg, rgba(163, 201, 143, 0.22), rgba(163, 201, 143, 0.08));
+        border: 2px solid #6a9a58;
+    }
+
+    .oh-block.denied {
+        background: linear-gradient(135deg, rgba(240, 163, 155, 0.22), rgba(240, 163, 155, 0.08));
+        border: 2px solid #b8544b;
+    }
+
+    .oh-block-staff {
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+    }
+
+    .oh-block-courses {
+        font-size: 0.95rem;
+        opacity: 0.95;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .oh-block-time {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    .oh-status-tag {
+        display: inline-block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 5px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .oh-status-PENDING {
+        background: rgba(230, 197, 106, 0.2);
+        color: #e6c56a;
+    }
+
+    .oh-status-APPROVED {
+        background: rgba(163, 201, 143, 0.2);
+        color: #a3c98f;
+    }
+
+    .oh-status-DENIED {
+        background: rgba(240, 163, 155, 0.2);
+        color: #f0a39b;
+    }
+
+    /* Action Buttons */
+    .oh-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 12px;
+    }
+
+    .oh-btn {
+        flex: 1;
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .oh-btn-approve {
+        background: #5b8a4a;
+        color: white;
+    }
+
+    .oh-btn-approve:hover {
+        background: #689857;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .oh-btn-deny {
+        background: #b8544b;
+        color: white;
+    }
+
+    .oh-btn-deny:hover {
+        background: #c7625a;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+        transform: translateY(-1px);
+    }
+
+    /* Pending Count Banner */
+    .pending-count {
+        background: rgba(230, 197, 106, 0.12);
+        border: 1px solid rgba(230, 197, 106, 0.4);
+        border-radius: 10px;
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #e6c56a;
+        font-weight: 600;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+
+    /* ===== 3D button edges (matches login button) ===== */
+    .oh-btn-approve { box-shadow: 0 4px 0 #43693a, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .oh-btn-approve:hover { box-shadow: 0 6px 0 #43693a, 0 12px 20px rgba(0, 0, 0, 0.35); }
+    .oh-btn-deny { box-shadow: 0 4px 0 #8a3a33, 0 8px 16px rgba(0, 0, 0, 0.3); }
+    .oh-btn-deny:hover { box-shadow: 0 6px 0 #8a3a33, 0 12px 20px rgba(0, 0, 0, 0.35); }
+</style>
+
+<div class="container">
+    <a href="{% url 'instructor_home' %}" class="back-btn">← Back to Dashboard</a>
+
+    <div class="oh-banner">
+        <h1>📅 Pending Office Hours</h1>
+        <p>Review and approve office hours in the calendar below</p>
+    </div>
+
+    {% if pending_count > 0 %}
+    <div class="pending-count">
+        ⏳ {{ pending_count }} Office Hour{{ pending_count|pluralize }} Awaiting Approval
+    </div>
+    {% endif %}
+
+    <div class="oh-card">
+        <!-- Filter bar -->
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <div class="oh-filter-label">Filter by course</div>
+                <select name="course" class="form-select oh-filter-select">
+                    <option value="">All courses</option>
+                    {% for c in courses %}
+                        <option value="{{ c.code }}"
+                                {% if selected_course|stringformat:"s" == c.code|stringformat:"s" %}selected{% endif %}>
+                            {{ c.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <div class="oh-filter-label">Filter by staff member</div>
+                <select name="staff" class="form-select oh-filter-select">
+                    <option value="">All staff</option>
+                    {% for s in staff_list %}
+                        <option value="{{ s.email }}"
+                                {% if selected_staff == s.email %}selected{% endif %}>
+                            {{ s.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 text-md-end">
+                <button type="submit" class="btn oh-filter-btn w-100 mb-1">
+                    Apply
+                </button>
+                <a href="{% url 'instructor_pending_office_hours' %}" class="btn btn-sm oh-filter-btn w-100">
+                    Clear
+                </a>
+            </div>
+        </form>
+
+        <!-- Week-style table with 15-minute increments -->
+        <div class="oh-table-wrapper">
+            <table class="oh-table">
+                <colgroup>
+                    <col class="col-time">
+                    {% for d in days %}
+                        <col class="col-day">
+                    {% endfor %}
+                </colgroup>
+
+                <thead>
+                <tr>
+                    <th class="time-col">Time</th>
+                    {% for d in days %}
+                        <th class="oh-day-header">{{ d.label }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <th class="time-col">
+                            <span class="oh-time-label">{{ row.time }}</span>
+                        </th>
+
+                        {% for cell in row.cells %}
+                            {% if cell.skip %}
+                                {# Skip this cell - it's part of a rowspan from above #}
+                            {% elif cell.entries %}
+                                {% for e in cell.entries %}
+                                    <td rowspan="{{ e.rowspan }}" class="oh-block-cell">
+                                        <div class="oh-block {{ e.status|lower }}">
+                                            <div>
+                                                <div class="oh-block-staff">{{ e.staff_name }}</div>
+
+                                                <div class="oh-block-courses">
+                                                    📚
+                                                    {% if e.courses %}
+                                                        {{ e.courses|join:", " }}
+                                                    {% else %}
+                                                        No courses
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="oh-block-time">
+                                                    🕒 {{ e.start_time }} - {{ e.end_time }}
+                                                </div>
+
+                                                <span class="oh-status-tag oh-status-{{ e.status }}">
+                                                    {{ e.status }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Show approve/deny buttons ONLY for PENDING -->
+                                            {% if e.status == 'PENDING' %}
+                                            <div class="oh-actions">
+                                                <form method="post" action="{% url 'instructor_approve_office_hour' e.id %}" style="flex: 1;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="oh-btn oh-btn-approve">✓ Approve</button>
+                                                </form>
+
+                                                <form method="post" action="{% url 'instructor_deny_office_hour' e.id %}" style="flex: 1;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="oh-btn oh-btn-deny">✗ Deny</button>
+                                                </form>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                {% endfor %}
+                            {% else %}
+                                <td class="oh-cell-empty"></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

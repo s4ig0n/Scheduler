@@ -1,0 +1,295 @@
+{% extends "SchedulerApp/base.html" %}
+{% block title %}Reservation Reports - Scheduler{% endblock %}
+{% block content %}
+
+<div class="lava" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+
+<style>
+    body {
+        background:
+            radial-gradient(ellipse 70% 45% at 50% 105%, rgba(214, 110, 40, 0.35), transparent 70%),
+            linear-gradient(180deg, #121620 0%, #1a1f2b 100%) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+        color: #f1ece3;
+    }
+
+    h2.page-title {
+        color: #eba35c;
+        font-weight: 700;
+        margin-top: 24px;
+        margin-bottom: 10px;
+    }
+
+    .reservations-subtitle {
+        color: #b9b2a6;
+        margin-bottom: 14px;
+    }
+
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+        align-items: end;
+    }
+
+    .filter-bar label {
+        font-size: 0.8rem;
+        color: #a3c98f;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+
+    .filter-bar .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 200px;
+    }
+
+    .filter-bar select, .filter-bar input {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f1ece3;
+        padding: 10px 12px;
+        border-radius: 12px;
+        outline: none;
+    }
+
+    .filter-btn {
+        background: rgba(235, 163, 92, 0.16);
+        border: 1px solid rgba(235, 163, 92, 0.45);
+        color: #eba35c;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.18s ease-in-out;
+    }
+
+    .filter-btn:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* ========== NEON TABLE (copied style from upcoming) ========== */
+    .neon-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 10px;
+    }
+
+    table.neon-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+        color: #f1ece3;
+        background: transparent !important;
+    }
+
+    table.neon-table thead tr {
+        background: #272d3b !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    table.neon-table thead th {
+        padding: 14px 12px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #a3c98f;
+        border: none !important;
+        white-space: nowrap;
+    }
+
+    table.neon-table tbody tr {
+        background: #1e2330 !important;
+        border-radius: 14px;
+        transition: 0.18s ease-in-out;
+    }
+
+    table.neon-table tbody tr:hover {
+        background: #262c3a !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    table.neon-table tbody td {
+        padding: 14px 12px;
+        border: none !important;
+        font-size: 0.9rem;
+        vertical-align: top;
+    }
+
+    .pill {
+        background: rgba(230, 197, 106, 0.16);
+        border: 1px solid rgba(230, 197, 106, 0.45);
+        color: #e6c56a;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .no-reservations {
+        padding: 18px 4px 8px 4px;
+        color: #b9b2a6;
+        font-size: 0.98rem;
+    }
+
+    a.student-link {
+        color: #eba35c;
+        text-decoration: underline;
+    }
+
+    /* ===== Lava lamp background (sits behind everything, incl. navbar) ===== */
+    .lava {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .blob {
+        position: absolute;
+        bottom: -30vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #f5a55a 0%, #e0772b 45%, #b8531c 100%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation:
+            rise var(--dur) ease-in-out var(--delay) infinite alternate,
+            morph calc(var(--dur) / 2.5) ease-in-out var(--delay) infinite alternate;
+    }
+
+    @keyframes rise {
+        0%   { transform: translate(0, 0) scale(1); }
+        50%  { transform: translate(var(--drift), -70vh) scale(1.1); }
+        100% { transform: translate(0, -135vh) scale(0.95); }
+    }
+
+    @keyframes morph {
+        0%   { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; }
+        33%  { border-radius: 42% 58% 55% 45% / 60% 44% 56% 40%; }
+        66%  { border-radius: 58% 42% 40% 60% / 45% 58% 42% 55%; }
+        100% { border-radius: 47% 53% 60% 40% / 55% 40% 60% 45%; }
+    }
+
+    .blob:nth-child(1) { left: 6%;  width: 260px; height: 260px; --dur: 26s; --delay: -4s;  --drift: 40px; }
+    .blob:nth-child(2) { left: 30%; width: 180px; height: 200px; --dur: 21s; --delay: -14s; --drift: -30px; }
+    .blob:nth-child(3) { left: 58%; width: 320px; height: 300px; --dur: 32s; --delay: -9s;  --drift: 25px; }
+    .blob:nth-child(4) { left: 80%; width: 200px; height: 220px; --dur: 24s; --delay: -19s; --drift: -45px; }
+    .blob:nth-child(5) { left: 44%; width: 130px; height: 140px; --dur: 18s; --delay: -6s;  --drift: 35px;
+                         background: radial-gradient(circle at 35% 30%, #f2c46a 0%, #d99a35 50%, #a8671c 100%); }
+    .blob:nth-child(6) { left: 16%; width: 150px; height: 160px; --dur: 23s; --delay: -11s; --drift: -20px;
+                         background: radial-gradient(circle at 35% 30%, #f28a5a 0%, #d45a2a 50%, #9e3a16 100%); }
+    .blob:nth-child(7) { left: 70%; width: 110px; height: 120px; --dur: 17s; --delay: -2s;  --drift: 20px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blob { animation: none; bottom: auto; top: calc(var(--delay) * -4vh); }
+    }
+</style>
+
+<div class="container px-0">
+    <h2 class="page-title">Reservation Reports</h2>
+    <p class="reservations-subtitle">
+        These are reservations marked as Tardy or Absent.
+    </p>
+
+    <form method="get" class="filter-bar">
+        <div class="field">
+            <label for="course">Course</label>
+            <select name="course" id="course">
+                <option value="">All</option>
+                {% for c in course_options %}
+                    <option value="{{ c.code }}" {% if selected_course|stringformat:"s" == c.code|stringformat:"s" %}selected{% endif %}>
+                        {{ c.label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="sort">Most Recent</label>
+            <select name="sort" id="sort">
+                <option value="recent" {% if sort == "recent" %}selected{% endif %}>Most recent first</option>
+                <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest first</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="student">Student Email</label>
+            <input type="text" name="student" id="student" value="{{ selected_student }}" placeholder="student@uwm.edu" />
+        </div>
+
+        <button class="filter-btn" type="submit">Apply</button>
+    </form>
+
+    <div class="neon-table-wrapper">
+        {% if reports|length > 0 %}
+            <table class="neon-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Attendance Status</th>
+                        <th>Course</th>
+                        <th>TA Email</th>
+                        <th>Reservation Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">{{ r.student_display }}</div>
+                                <!-- click email to filter by that student -->
+                                <small>
+                                    <a class="student-link"
+                                       href="?course={{ selected_course }}&sort={{ sort }}&student={{ r.student_email }}">
+                                        {{ r.student_email }}
+                                    </a>
+                                </small>
+                            </td>
+
+                            <td>
+                                <span class="pill">{{ r.attendance }}</span>
+                            </td>
+
+                            <td>
+                                <span class="fw-semibold">{{ r.course_display }}</span>
+                            </td>
+
+                            <td>
+                                <small>{{ r.ta_email }}</small>
+                            </td>
+
+                            <td>
+                                <div>{{ r.start|date:"D, M j, Y" }}</div>
+                                <small>{{ r.start|time:"H:i" }} – {{ r.end|time:"H:i" }}</small>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-reservations">
+                No tardy/absence reports found for the selected filters.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
