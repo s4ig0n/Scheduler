@@ -38,8 +38,31 @@ The goal of this version is to turn the original course project into a more poli
 Scheduler/
 ├── DjangoProject/       # Django project configuration
 ├── SchedulerApp/        # Main application
+├── classes/             # Domain classes (courses, users, office hours)
 ├── templates/           # HTML templates and page layouts
 ├── static/              # CSS, JavaScript, and other static files
-├── db.sqlite3           # Development database
 ├── manage.py            # Django management script
+├── requirements.txt     # Python dependencies
 └── README.md
+```
+
+## Running locally
+
+Requires Python 3.10+.
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser   # first admin account
+python manage.py runserver
+```
+
+Then open http://127.0.0.1:8000/. The SQLite database (`db.sqlite3`) is created by `migrate` and is not checked in.
+
+## Credits
+
+The original course version was built by a team of four in a scrum-based process. This repository is my
+independent continuation of that project.
+
